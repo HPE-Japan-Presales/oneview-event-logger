@@ -6,7 +6,7 @@ GOTEST=$(GOCMD) test
 GORUN=$(GOCMD) run
 CURRENT_VERSION=$(shell git describe --tags --abbrev=0)
 BUILD_TARGET="cmd/main.go"
-BUILD_PATH="bin"
+BUILD_PATH="bin/"
 BUILD_BASE_NAME=oneview-event-logger
 
 #Run Params
