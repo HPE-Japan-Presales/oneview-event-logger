@@ -14,7 +14,7 @@ OV_ADDR="192.168.2.6"
 OV_USER="golang"
 OV_PASSWORD="golangtest"
 
-run:
+test:
 	@OV_ADDR=$(OV_ADDR) OV_USER=$(OV_USER) OV_PASSWORD=$(OV_PASSWORD) $(GORUN) $(BUILD_TARGET)
 
 build:
