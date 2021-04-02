@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	defaultDur               = 60 //sec
+	defaultInt               = 60 //sec
 	defaultOvVer             = 1200
 	defaultOvSslVerification = false
 	defaultLogPath           = "/tmp/oneview_evnet.log"
@@ -23,7 +23,7 @@ const (
 
 var (
 	version    = "TEST"
-	ovDur      int
+	ovInt      int
 	ovAddr     string
 	ovUser     string
 	ovPassword string
@@ -37,16 +37,16 @@ var (
 
 func init() {
 	//Get Envronment Values
-	ovDurStr := os.Getenv("OV_DURATION")
-	if ovDurStr == "" {
-		ovDur = defaultDur
+	ovIntStr := os.Getenv("OV_INTERVAL")
+	if ovIntStr == "" {
+		ovInt = defaultInt
 	} else {
-		d, err := strconv.Atoi(ovDurStr)
+		in, err := strconv.Atoi(ovIntStr)
 		if err != nil {
-			fmt.Printf("Error: Logging duration parse error: %v\n", err)
+			fmt.Printf("Error: Logging interval parse error: %v\n", err)
 			os.Exit(1)
 		}
-		ovDur = d
+		ovInt = in
 	}
 
 	ovAddr = os.Getenv("OV_ADDR")
@@ -136,7 +136,7 @@ func init() {
 
 func main() {
 	fmt.Printf("HPE OneView Event Logger Version %s\n", version)
-	fmt.Printf("Logging Duration: %vsec\n", ovDur)
+	fmt.Printf("Logging Duration: %vsec\n", ovInt)
 	fmt.Printf("OneView Address: %s\n", ovAddr)
 	fmt.Printf("OneView User: %s\n", ovUser)
 	fmt.Printf("OneView API Version: %v\n", ovVer)
@@ -178,6 +178,6 @@ func main() {
 			fmt.Printf("Error: Could not logging events: %v", err)
 		}
 		fmt.Printf("%v Logged events into %s\n", time.Now(), path)
-		<-time.After(time.Duration(ovDur) * time.Second)
+		<-time.After(time.Duration(ovInt) * time.Second)
 	}
 }
