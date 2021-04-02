@@ -14,41 +14,48 @@ const (
 	defaultOvVer             = 1200
 	defaultOvSslVerification = false
 	defaultLogPath           = "/tmp/oneview_evnet.log"
-	defaultMaxLogSize         = 50 //MB
-	defaultMaxBackups         = 5
-	defaultMaxAge             = 365 //Day
-	defaultCompress           = true
+	defaultMaxLogSize        = 50 //MB
+	defaultMaxBackups        = 5
+	defaultMaxAge            = 365 //Day
+	defaultCompress          = true
 )
 
 var (
-	version = "test"
+	version    = "test"
+	ovAddr     string
+	ovUser     string
+	ovPassword string
+	ovVer      int
+	path       string
+	size       int
+	backups    int
+	age        int
+	compress   bool
 )
 
-func main() {
-	fmt.Printf("HPE OneView Event Logger Version %s\n", version)
+func init() {
 	//Get Envronment Values
-	ovAddr := os.Getenv("OV_ADDR")
+	ovAddr = os.Getenv("OV_ADDR")
 	if ovAddr == "" {
 		fmt.Printf("Error: Not set OneView address or hostname\n")
 		os.Exit(1)
 	}
 
-	ovUser := os.Getenv("OV_USER")
+	ovUser = os.Getenv("OV_USER")
 	if ovUser == "" {
 		fmt.Printf("Error: Not set OneView user\n")
 		os.Exit(1)
 	}
 
-	ovPassword := os.Getenv("OV_PASSWORD")
+	ovPassword = os.Getenv("OV_PASSWORD")
 	if ovPassword == "" {
 		fmt.Printf("Error: Not set OneView password\n")
 		os.Exit(1)
 	}
 
-	var ovVer int
 	ovVerStr := os.Getenv("OV_VERSION")
 	if ovVerStr == "" {
-		ovVer = defaultOvVer 
+		ovVer = defaultOvVer
 	} else {
 		v, err := strconv.Atoi(ovVerStr)
 		if err != nil {
@@ -58,12 +65,11 @@ func main() {
 		ovVer = v
 	}
 
-	path := os.Getenv("OV_LOG_PATH")
+	path = os.Getenv("OV_LOG_PATH")
 	if path == "" {
 		path = defaultLogPath
 	}
 
-	var size int
 	sizeStr := os.Getenv("OV_LOG_MAX_SIZE_MB")
 	if sizeStr == "" {
 		size = defaultMaxLogSize
@@ -76,7 +82,6 @@ func main() {
 		size = s
 	}
 
-	var backups int
 	backupsStr := os.Getenv("OV_LOG_MAX_BACKUPS")
 	if backupsStr == "" {
 		backups = defaultMaxBackups
@@ -89,7 +94,6 @@ func main() {
 		backups = b
 	}
 
-	var age int
 	ageStr := os.Getenv("OV_LOG_MAX_AGE")
 	if ageStr == "" {
 		age = defaultMaxAge
@@ -102,7 +106,6 @@ func main() {
 		age = a
 	}
 
-	var compress bool
 	compressStr := os.Getenv("OV_LOG_COMPRESS")
 	if compressStr == "" {
 		compress = defaultCompress
@@ -115,8 +118,20 @@ func main() {
 		compress = c
 	}
 
-	ovUrl := "https://" + ovAddr
+}
 
+func main() {
+	fmt.Printf("HPE OneView Event Logger Version %s\n", version)
+	fmt.Printf("OneView Address: %s\n", ovAddr)
+	fmt.Printf("OneView User: %s\n", ovUser)
+	fmt.Printf("OneView API Version: %v\n", ovVer)
+	fmt.Printf("OneView Event Log Path: %s\n", path)
+	fmt.Printf("Log Max Size: %v\n", size)
+	fmt.Printf("Log Buckup Days: %v\n", backups)
+	fmt.Printf("Log Buckup Ages: %v\n", age)
+	fmt.Printf("Log Compression: %v\n", compress)
+
+	ovUrl := "https://" + ovAddr
 	var ovClient *ov.OVClient
 	c := ovClient.NewOVClient(
 		ovUser,
@@ -127,6 +142,7 @@ func main() {
 		ovVer,
 		"*")
 
+	fmt.Printf("%v Trying to connect HPE OneView %s\n", time.Now(), ovUrl)
 	events, err := oneview.GetEventList(c)
 	if err != nil {
 		fmt.Printf("Error: Could not get events: %v", err)
@@ -145,5 +161,5 @@ func main() {
 	if err := l.Write(); err != nil {
 		fmt.Printf("Error: Could not logging events: %v", err)
 	}
-	fmt.Printf("%v Logged events...\n", time.Now())
+	fmt.Printf("%v Logged events into %s\n", time.Now(), path)
 }
