@@ -2,7 +2,7 @@
 This is just logging HPE OneView events to log file by using OneView API. HPE OneView may have event log forwarding features. I was lazy to look for it. That why I made this.  
 
 ## Quick Start
-[Download binary](https://github.com/fideltak/oneview-event-logger/releases) and run it.  
+[Download binary](https://github.com/fideltak/oneview-event-logger/releases) or [Docker Image](https://hub.docker.com/repository/docker/fideltak/oneview-event-logger) and run it.  
 You can set parameters as environment value.  
 
 ```
@@ -35,3 +35,35 @@ You can set parameters in OS environment value.
 | OV\_LOG\_MAX\_BACKUPS | 5 | Number of log backup|
 | OV\_LOG\_MAX\_AGE | 365 | Days of keeping old logs| 
 | OV\_LOG\_COMPRESS | true | Old log compression |
+
+## Wiz Zabbix
+You can use this with Zabbix. Actually the reason that I made this is for zabbix.  
+In Zabbix, You can use External Scrpit or Javascript to gather OneView events via OneView API but it seems that Zabbix inserts multiple events into one entry. I feel it is not good visually to monitor systems.(I'm not sure Zabbix can separate JSON list...)  
+Therefore I'm using this app with zabbix agents by using zabbix-agnet log monitoring. Each incidents are inserted each entry in Zabbix.  
+
+I recommend to use k8s to integrate zabbix-agent and oneview-event-logger like below.  
+Sample manifests is [here](deploy/k8s/wiz_zabbix_agent).  
+[Docker Image](https://hub.docker.com/repository/docker/fideltak/oneview-event-logger)
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│ Pod                                                            │
+│ ┌───────────────────────────┐   ┌────────────────────────────┐ │
+│ │<Container>                │   │<Container>                 │ │
+│ │zabbix-agent               │   │oneview-event-logger        │ │
+│ │                           │   │                            │ │
+│ │                           │   │                            │ │
+│ └───────────────┬───────────┘   └────┬───────────────────────┘ │
+│                 │                    │                         │
+│           ┌─────▼────────────────────▼──────────────┐          │
+│           │<Persistent Volume:RWX>                  │          │
+│           │ /var/log/oneview/events.log             │          │
+│           │                                         │          │
+│           └─────────────────────────────────────────┘          │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+```
+
+You can see some events in Zabbix like below.  
+I created Zabbix Item to get *Critical* events (`log[/var/log/oneview/events.log, "Critical"]`) in OneView.  
+![oneview-critical-events](docs/zabbix/oneview-critical-events.png)

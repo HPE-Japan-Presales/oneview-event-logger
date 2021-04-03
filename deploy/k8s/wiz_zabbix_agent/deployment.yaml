@@ -1,0 +1,75 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zabbix-oneview-agent
+  namespace: zabbix
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: zabbix-oneview-agent
+  template:
+    metadata:
+      labels:
+        name: zabbix-oneview-agent
+    spec:
+      containers:
+        - name: zabbix-agent
+          image: zabbix/zabbix-agent:alpine-5.2-latest
+          resources:
+           limits:
+            cpu: 100m
+            memory: 54Mi
+           requests:
+            cpu: 100m
+            memory: 54Mi
+          ports:
+          - containerPort: 10050
+            name: zabbix-agent
+          env:
+          - name: ZBX_HOSTNAME
+            value: "zabbix-oneview-agent-headless"
+          - name: ZBX_SERVER_HOST
+            value: "zabbix-server-headless"
+          - name: ZBX_PASSIVE_ALLOW
+            value: "true"
+          - name: ZBX_ACTIVE_ALLOW
+            value: "true"
+          - name: ZBX_STARTAGENTS
+            value: "3"
+          - name: ZBX_TIMEOUT
+            value: "10"
+          securityContext:
+            privileged: true
+          volumeMounts:
+          - name: zabbix-oneview-shared
+            mountPath: /var/log/oneview/
+            readOnly: true
+        - name: oneview-logger
+          image: fideltak/oneview-event-logger:latest
+          resources:
+           limits:
+            cpu: 100m
+            memory: 54Mi
+           requests:
+            cpu: 100m
+            memory: 54Mi
+          env:
+          - name: OV_INTERVAL
+            value: "300"
+          - name: OV_ADDR
+            value: "192.168.2.6"
+          - name: OV_USER
+            value: "golang"
+          - name: OV_PASSWORD
+            value: "golangtest"
+          - name: OV_LOG_PATH
+            value: "/var/log/oneview/events.log"
+          volumeMounts:
+          - name: zabbix-oneview-shared
+            mountPath: /var/log/oneview/
+      volumes:
+      - name: zabbix-oneview-shared
+        persistentVolumeClaim:
+          claimName: zabbix-oneview-shared

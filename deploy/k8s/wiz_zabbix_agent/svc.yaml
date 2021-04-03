@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zabbix-oneview-agent
+  namespace: zabbix
+spec:
+  ports:
+  - port: 10050
+    targetPort: 10050
+    name: zabbix-agent
+  selector:
+    name: zabbix-oneview-agent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zabbix-oneview-agent-headless
+  namespace: zabbix
+spec:
+  ports:
+  - port: 10050
+    targetPort: 10050
+    name: zabbix-agent
+  selector:
+    name: zabbix-oneview-agent
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zabbix-server-headless
+  labels:
+    app: zabbix
+  namespace: zabbix
+spec:
+  ports:
+  - port: 10051
+    targetPort: 10051
+    name: zabbix-trapper
+  selector:
+    name: zabbix-server
+  clusterIP: None
