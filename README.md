@@ -1,5 +1,5 @@
 # HPE OneView Event Logger
-This is just logging HPE OneView events to log file by using OneView API. HPE OneView may have event log forwarding features. I was lazy to look for it. That why I made this.  
+This is just logging HPE OneView events to log file by using OneView API. HPE OneView may have event log forwarding features. I was lazy to look for it. That's why I made this.  
 
 ## Quick Start
 [Download binary](https://github.com/fideltak/oneview-event-logger/releases) or [Docker Image](https://hub.docker.com/repository/docker/fideltak/oneview-event-logger) and run it.  
@@ -40,6 +40,7 @@ You can set parameters in OS environment value.
 You can use this with Zabbix. Actually the reason that I made this is for zabbix.  
 In Zabbix, You can use External Scrpit or Javascript to gather OneView events via OneView API but it seems that Zabbix inserts multiple events into one entry. I feel it is not good visually to monitor systems.(I'm not sure Zabbix can separate JSON list...)  
 Therefore I'm using this app with zabbix agents by using zabbix-agnet log monitoring. Each incidents are inserted each entry in Zabbix.  
+You can see more details what mentioned above [here](https://github.com/fideltak/zabbix_oneview_sample).
 
 I recommend to use k8s to integrate zabbix-agent and oneview-event-logger like below.  
 Sample manifests is [here](deploy/k8s/wiz_zabbix_agent).  
